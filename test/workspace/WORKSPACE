@@ -1,0 +1,20 @@
+workspace(name = "workspace_bazel_ipc")
+
+git_repository(
+    name = "io_bazel_rules_dart",
+    remote = "https://github.com/dart-lang/rules_dart",
+    tag = "v0.4.3",
+)
+
+load(
+    "@io_bazel_rules_dart//dart/build_rules:repositories.bzl",
+    "dart_repositories",
+)
+
+dart_repositories()
+
+new_http_archive(
+    name = "collection",
+    url = "https://storage.googleapis.com/pub-packages/packages/collection-1.14.1.tar.gz",
+    build_file = "third_party/dart/collection/BUILD",
+)
