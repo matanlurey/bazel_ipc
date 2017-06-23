@@ -9,6 +9,8 @@ environment:
   sdk: ">=1.22.0 <2.0.0"
 
 dependencies:
+  collection: ^1.0.0
+  meta: ^1.0.5
   protobuf: ^0.5.0
 
 dev_dependencies:
