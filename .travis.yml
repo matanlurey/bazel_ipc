@@ -17,6 +17,9 @@ cache:
 before_install:
   - if [ "$INSTALL_BAZEL" == "true" ]; then wget https://github.com/bazelbuild/bazel/releases/download/0.5.1/bazel_0.5.1-linux-x86_64.deb; sudo dpkg -i bazel_0.5.1-linux-x86_64.deb; fi
 
+branches:
+  only: [master]
+
 # Check for analysis issues, run the test cases, and ensure `dartfmt` is run.
 dart_task:
   - test: --platform vm
