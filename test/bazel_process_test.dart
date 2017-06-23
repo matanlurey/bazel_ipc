@@ -7,8 +7,10 @@ import 'package:test/test.dart';
 
 void main() {
   test('should run "bazel query"', () async {
-    final bazel = new BazelProcess();
-    final result = await bazel.query('kind("dart_library", //dart/example)');
+    final bazel = new BazelProcess(directory: 'test/workspace');
+    final result = await bazel.query([
+      'kind("dart_library", //dart/example)',
+    ]);
     expect(result.target.first.rule.name, '//dart/example:example');
   });
 }

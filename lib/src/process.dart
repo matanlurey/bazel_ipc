@@ -3,48 +3,60 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
+import 'io_utils.dart';
 import 'proto/build.pb.dart';
 
 /// Encapsulates running `bazel` via the command-line and communicating.
 abstract class BazelProcess {
   factory BazelProcess({
     String command,
+    String directory,
   }) = _BazelProcess;
 
+  /// Runs `bazel` with `arguments`, and returns the raw binary result.
+  @protected
+  Future<List<int>> runBazel(List<String> arguments);
+
   /// Documentation: https://bazel.build/versions/master/docs/query.html.
-  Future<QueryResult> query(String query, [Iterable<String> options]);
+  Future<QueryResult> query(List<String> options);
 }
 
 class _BazelProcess implements BazelProcess {
   final String _executable;
+  final String _directory;
 
   const _BazelProcess({
     String command: 'bazel',
+    String directory,
   })
-      : _executable = command;
+      : _executable = command,
+        _directory = directory;
 
-  @protected
-  Future<ProcessResult> runBazel([List<String> args = const []]) async {
-    return await Process.run(
-      _executable,
-      args,
-      workingDirectory: 'test/workspace',
-      stdoutEncoding: null,
-    );
-  }
+  @override
+  Future<List<int>> runBazel(
+    List<String> arguments,
+  ) =>
+      runBinary(
+        _executable,
+        new CombinedListView([
+          arguments,
+          const ['--output=proto']
+        ]),
+        workingDirectory: _directory,
+      );
 
   @override
   Future<QueryResult> query(
-    String query, [
-    Iterable<String> options = const [],
-  ]) async {
-    final result = await runBazel(['query', query]
-      ..addAll(options)
-      ..add('--output=proto'));
-    return new QueryResult.fromBuffer(result.stdout as List<int>);
-  }
+    List<String> options,
+  ) =>
+      runBazel(
+        new CombinedListView([
+          ['query'],
+          options,
+        ]),
+      ).then((buffer) => new QueryResult.fromBuffer(buffer));
 }
